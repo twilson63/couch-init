@@ -1,0 +1,26 @@
+{
+  "name": "couch-init",
+  "version": "0.0.1",
+  "description": "A simple couchDb init library to create basic views for your document models, as well as an api to manage your custom views in basic js files.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "couchdb",
+    "init"
+  ],
+  "author": "Tom Wilson",
+  "license": "MIT",
+  "dependencies": {
+    "request": "~2.12.0",
+    "inflection": "~1.2.3"
+  },
+  "devDependencies": {
+    "mocha": "~1.7.4",
+    "nock": "~0.14.2"
+  }
+}
