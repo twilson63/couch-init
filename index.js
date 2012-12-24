@@ -9,8 +9,8 @@ module.exports = function(db) {
   return {
     createDb: function(cb) {
       request.put(db, { json: true }, function(e,r,b) { 
-        if (e) { console.log(e); }
-        if(b.ok) { cb(); }
+        if (e) { console.log(e); return cb(e, false); }
+        if (b.ok) { cb(null, true); }
       });
     },
     createView: function(name, keys, cb) {
@@ -31,14 +31,16 @@ module.exports = function(db) {
       });
 
       request.put([db, '_design', view].join('/'), { json: doc}, function(e,r,b){
+        if (e) { return cb(e, false); }
         assert.ok(b.ok, 'cant create view ' + view);
-        cb();
+        cb(null, true);
       });      
     },
     destroyDb: function(cb) {
       request.del(db, { json: true }, function(e,r,b){
+        if (e) { return cb(e, false); }
         assert.ok(b.ok, 'cant destroy db');
-        cb();
+        cb(null, true);
       });
     }
   }
