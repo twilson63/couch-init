@@ -25,13 +25,28 @@ nock('http://localhost:5984')
   .reply(200, "{\"total_rows\":0,\"offset\":0,\"rows\":[]}\n");
 
 nock('http://localhost:5984')
+  .get('/foobar/_design/posts/_view/bar')
+  .reply(200, "{\"total_rows\":0,\"offset\":0,\"rows\":[]}\n");
+
+nock('http://localhost:5984')
+  .get('/foobar/_design/posts')
+  .reply(200, JSON.stringify({"_id":"_design/foo","_rev":"1-1405e501441096482d6216e789ed3d15","language":"javascript","views":{"all":{"map":"function(doc) {\n  emit(null, doc);\n}"}}}));
+
+nock('http://localhost:5984')
+  .put('/foobar/_design/posts', JSON.stringify({"_id":"_design/foo","_rev":"1-1405e501441096482d6216e789ed3d15","language":"javascript","views":{"all":{"map":"function(doc) {\n  emit(null, doc);\n}"},"bar":{"map":"function (doc) { emit(\"bar\", doc); }"}}}))
+  .reply(201, "{\"ok\":true,\"id\":\"_design/posts\",\"rev\":\"1-fc417395eea8ac50773aaa8b1289de40\"}\n");
+
+nock('http://localhost:5984')
   .delete('/foobar')
   .reply(200, "{\"ok\":true}\n");
     
 describe('init db', function(){
   before(function(done){
     init.createDb(function(){
-      init.createView('post', ['author'], done);
+      init.createView('post', ['author'], function(e, res) {
+        var fn = function(doc) { emit("bar", doc); }
+        init.addAction('posts', 'bar', fn, done);
+      });
     });
   });
   it('should create db', function(done){
@@ -48,6 +63,12 @@ describe('init db', function(){
   });
   it('should have posts view with author method', function(done){
     request(db + '/_design/posts/_view/author', {json: true}, function(e,r,b) {
+      assert.ok(b.total_rows === 0);
+      done();
+    });
+  });
+  it('should add new action to view', function(done){
+    request(db + '/_design/posts/_view/bar', {json: true}, function(e,r,b) {
       assert.ok(b.total_rows === 0);
       done();
     });

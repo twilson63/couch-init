@@ -36,6 +36,15 @@ module.exports = function(db) {
         cb(null, true);
       });      
     },
+    addAction: function(view, action, fn, cb) {
+      request([db, '_design', view].join('/'), {json: true}, function(e,r,b) {
+        b.views[action] = { map: fn.toString() };
+        request.put([db, '_design', view].join('/'), {json: b }, function(e,r,b) {
+          if (e) { return cb(e, false); }
+          cb(null, true);
+        });
+      });
+    },
     destroyDb: function(cb) {
       request.del(db, { json: true }, function(e,r,b){
         if (e) { return cb(e, false); }
