@@ -43,9 +43,9 @@ nock('http://localhost:5984')
 describe('init db', function(){
   before(function(done){
     init.createDb(function(){
-      init.createView('post', ['author'], function(e, res) {
+      init.createViews('post', ['author'], function(e, res) {
         var fn = function(doc) { emit("bar", doc); }
-        init.addAction('posts', 'bar', fn, done);
+        init.addView('post', 'bar', fn, done);
       });
     });
   });

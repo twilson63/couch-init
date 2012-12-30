@@ -1,6 +1,6 @@
 {
   "name": "couch-init",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A simple couchDb init library to create basic views for your document models, as well as an api to manage your custom views in basic js files.",
   "main": "index.js",
   "directories": {

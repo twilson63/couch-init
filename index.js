@@ -9,11 +9,13 @@ module.exports = function(db) {
   return {
     createDb: function(cb) {
       request.put(db, { json: true }, function(e,r,b) { 
-        if (e) { console.log(e); return cb(e, false); }
-        if (b.ok) { cb(null, true); }
+        if (cb) {
+          if (e) { console.log(e); return cb(e, false); }
+          if (b.ok) { cb(null, true); }
+        }
       });
     },
-    createView: function(name, keys, cb) {
+    createViews: function(name, keys, cb) {
       var view = inflection.pluralize(name);
       var doc = {
         language: 'javascript',
@@ -31,15 +33,16 @@ module.exports = function(db) {
       });
 
       request.put([db, '_design', view].join('/'), { json: doc}, function(e,r,b){
-        if (e) { return cb(e, false); }
-        assert.ok(b.ok, 'cant create view ' + view);
-        cb(null, true);
+        if (e) { if (cb) { cb(e, false); }; return; }
+        assert.ok(b.ok, 'cant create views ' + view);
+        if (cb) { cb(null, true); }
       });      
     },
-    addAction: function(view, action, fn, cb) {
-      request([db, '_design', view].join('/'), {json: true}, function(e,r,b) {
-        b.views[action] = { map: fn.toString() };
-        request.put([db, '_design', view].join('/'), {json: b }, function(e,r,b) {
+    addView: function(model, view, fn, cb) {
+      var design = inflection.pluralize(model);
+      request([db, '_design', design].join('/'), {json: true}, function(e,r,b) {
+        b.views[view] = { map: fn.toString() };
+        request.put([db, '_design', design].join('/'), {json: b }, function(e,r,b) {
           if (e) { return cb(e, false); }
           cb(null, true);
         });
