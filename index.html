@@ -1,0 +1,176 @@
+<!doctype html>
+<!-- The Time Machine GitHub pages theme was designed and developed by Jon Rohan, on Feb 7, 2012. -->
+<!-- Follow him for fun. http://twitter.com/jonrohan. Tail his code on http://github.com/jonrohan -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <link rel="stylesheet" href="stylesheets/stylesheet.css" media="screen"/>
+  <link rel="stylesheet" href="stylesheets/pygment_trac.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="javascripts/script.js"></script>
+
+  <title>Couch-init</title>
+  <meta name="description" content="A simple module to create/destroy couchdb database and create basic views for couch document models">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <header>
+      <h1 class="title">Couch-init</h1>
+    </header>
+    <div id="container">
+      <p class="tagline">A simple module to create/destroy couchdb database and create basic views for couch document models</p>
+      <div id="main" role="main">
+        <div class="download-bar">
+        <div class="inner">
+          <a href="https://github.com/twilson63/couch-init/tarball/master" class="download-button tar"><span>Download</span></a>
+          <a href="https://github.com/twilson63/couch-init/zipball/master" class="download-button zip"><span>Download</span></a>
+          <a href="https://github.com/twilson63/couch-init" class="code">View Couch-init on GitHub</a>
+        </div>
+        <span class="blc"></span><span class="trc"></span>
+        </div>
+        <article class="markdown-body">
+          <h1>couch-init <a href="https://travis-ci.org/twilson63/couch-init"><img src="https://travis-ci.org/twilson63/couch-init.png?branch=master" alt="Build Status"></a>
+</h1>
+
+<p>Couch-Init is a nifty way to specify your couchdb database and
+views.  CI adds some api methods to simplify your setup and tear down db process.  </p>
+
+<h2>Install</h2>
+
+<pre><code>npm install couch-init
+</code></pre>
+
+<h2>Usage:</h2>
+
+<p>Create a db.js file and create your module</p>
+
+<pre><code>//db.js
+
+var async = require('async');
+
+module.exports = function(dbUrl) {
+  var init = require('couch-init')(dbUrl);
+
+  return {
+    build: function(cb) {
+      var fn = async.apply;
+      async.series([
+        fn(init.createDb),
+        fn(createViews, 'post', ['author', 'title']),
+        fn(addView, 'post', 'author-title', function(doc){
+          if (doc.docType === 'post') {
+            emit(doc.author + ':' + doc.title.split(' ').join('-'));
+          }
+        }),
+        fn(createViews, 'user', ['email'])
+      ], cb);
+    },
+    drop: init.destroyDb;
+  }
+}
+</code></pre>
+
+<h2>API</h2>
+
+<h3><code>createDb([callback])</code></h3>
+
+<h3><code>destroyDb([callback])</code></h3>
+
+<p>createDb and destroyDb are pretty self explanatory, each function takes an optional callback and creates and destroys
+a couchDb database respectively.</p>
+
+<h3>`createViews(model, fields, callback)</h3>
+
+<p><code>createView</code> takes a single model name and an array of key
+columns with a callback to create a view for a document type.</p>
+
+<p>The design doc name is the plural version of the model name and it creates a basic view called <code>all</code> that filters on the <code>docType</code> key equal to the model name.</p>
+
+<p>then any key listed in the array of fields, CI creates a view for each one.  For example:</p>
+
+<pre><code>init.createViews('post', ['author','slug','posted'], function(err, res) {
+  console.log('created design document called posts');
+  console.log('it has four views');
+  console.log('all, author, slug, posted');
+});
+</code></pre>
+
+<p>Each view basically defines which field will be emitted
+as the key of a key value result.</p>
+
+<h3><code>addView(model, view, fn, callback)</code></h3>
+
+<p>Adds a view for a specified model to the design document 
+for that model.</p>
+
+<pre><code>init.addView('post', 'author-title', 
+  function(doc) {
+    if (doc.docType === 'post') {
+      emit(doc.author + ':' + doc.title, doc);
+    }
+  }, 
+  function(err) {
+    console.log('add view called author:title');
+    console.log('to posts design doc');
+  }
+);
+</code></pre>
+
+<h2>LICENSE</h2>
+
+<p>MIT</p>
+
+<h2>Contributions</h2>
+
+<p>pull requests are welcome.</p>
+
+<h2>TODO</h2>
+
+<h3><code>destroyViews(model, callback)</code></h3>
+
+<p>Removes the specified design doc based on the plural version
+of the model name.</p>
+
+<pre><code>init.detroyViews('post', function(err) { 
+  console.log('removes design document posts');
+});
+</code></pre>
+
+<h3><code>removeView(model, view, callback)</code></h3>
+
+<p>Removes the specified view from the design doc of the model.</p>
+
+<pre><code>init.removeView('post', 'author-title', function(err) {
+  console.log('removed view author-title from posts doc');
+});
+</code></pre>
+        </article>
+      </div>
+    </div>
+    <footer>
+      <div class="owner">
+      <p><a href="https://github.com/twilson63" class="avatar"><img src="https://secure.gravatar.com/avatar/ebd63577f6cef101bf22245572781d5d?s=30&amp;d=https://a248.e.akamai.net/assets.github.com%2Fimages%2Fgravatars%2Fgravatar-user-420.png" width="48" height="48"/></a> <a href="https://github.com/twilson63">twilson63</a> maintains <a href="https://github.com/twilson63/couch-init">Couch-init</a></p>
+
+
+      </div>
+      <div class="creds">
+        <small>This page generated using <a href="https://pages.github.com/">GitHub Pages</a><br/>theme by <a href="http://twitter.com/jonrohan/">Jon Rohan</a></small>
+      </div>
+    </footer>
+  </div>
+  <div class="current-section">
+    <a href="#top">Scroll to top</a>
+    <a href="https://github.com/twilson63/couch-init/tarball/master" class="tar">tar</a><a href="https://github.com/twilson63/couch-init/zipball/master" class="zip">zip</a><a href="" class="code">source code</a>
+    <p class="name"></p>
+  </div>
+
+  
+</body>
+</html>
