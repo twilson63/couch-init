@@ -9,7 +9,7 @@ nock('http://localhost:5984')
   .reply(201, "{\"ok\":true}\n");
 
 nock('http://localhost:5984')
-  .put('/foobar/_design/posts', "{\"language\":\"javascript\",\"views\":{\"all\":{\"map\":\"function(doc) {\\n  if (doc.docType === 'post') {\\n    emit(doc._id, doc);\\n  }\\n}\"},\"author\":{\"map\":\"function(doc) {\\n  if (doc.docType === 'post') {\\n    emit(doc.author, doc);\\n  }\\n}\"}}}")
+  .put('/foobar/_design/posts', "{\"language\":\"javascript\",\"views\":{\"all\":{\"map\":\"function(doc) {\\n  if (doc.docType === 'post') {\\n    emit(doc._id, doc);\\n  }\\n}\"},\"author\":{\"map\":\"function(doc) {\\n  if (doc.docType === 'post' && doc['author']) {\\n    emit(doc.author, doc);\\n  }\\n}\"}}}")
   .reply(201, "{\"ok\":true,\"id\":\"_design/posts\",\"rev\":\"1-fc417395eea8ac50773aaa8b1289de40\"}\n");
 
 nock('http://localhost:5984')
