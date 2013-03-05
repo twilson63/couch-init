@@ -28,7 +28,7 @@ module.exports = function(db) {
 
       keys.forEach(function(key){
         doc.views[key] = {
-          map: "function(doc) {\n  if (doc.docType === '" + name + "') {\n    emit(doc." + key + ", doc);\n  }\n}"
+          map: "function(doc) {\n  if (doc.docType === '" + name + "' && doc['" + key + "']) {\n    emit(doc." + key + ", doc);\n  }\n}"
         }
       });
 
