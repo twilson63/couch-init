@@ -34,7 +34,7 @@ module.exports = function(db) {
 
       request.put([db, '_design', view].join('/'), { json: doc}, function(e,r,b){
         if (e) { if (cb) { cb(e, false); }; return; }
-        assert.ok(b.ok, 'cant create views ' + view);
+        //assert.ok(b.ok, 'cant create views ' + view);
         if (cb) { cb(null, true); }
       });      
     },
